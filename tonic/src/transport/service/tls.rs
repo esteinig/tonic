@@ -12,6 +12,52 @@ use tokio_rustls::{
     TlsAcceptor as RustlsAcceptor, TlsConnector as RustlsConnector,
 };
 
+
+use tokio_rustls::rustls::client::{ServerCertVerified, ServerCertVerifier, HandshakeSignatureValid};
+use tokio_rustls::rustls::Error;
+use tokio_rustls::rustls::DigitallySignedStruct;
+
+/// https://github.com/rustls/rustls/issues/127#issuecomment-764018123
+
+/// Blindly trust any certificate - do not ever use this anywhere
+struct AcceptAnyCertVerifier;
+
+impl ServerCertVerifier for AcceptAnyCertVerifier {
+    fn verify_server_cert(
+        &self, 
+        _end_entity: &tokio_rustls::rustls::Certificate,
+        _intermediates: &[tokio_rustls::rustls::Certificate],
+        _server_name: &ServerName,
+        _scts: &mut dyn Iterator<Item = &[u8]>,
+        _ocsp_response: &[u8],
+        _now: SystemTime,
+    ) -> Result<ServerCertVerified, Error> {
+        // YOLO
+        Ok(ServerCertVerified::assertion())
+    }
+
+    fn verify_tls12_signature(
+        &self,
+        _message: &[u8],
+        _cert: &tokio_rustls::rustls::Certificate,
+        _dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, Error> {
+        // LOOKS GOOD
+        Ok(HandshakeSignatureValid::assertion())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        _message: &[u8],
+        _cert: &tokio_rustls::rustls::Certificate,
+        _dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, Error> {
+        // YUP VALID
+        Ok(HandshakeSignatureValid::assertion())
+    }
+}
+
+
 /// h2 alpn in plain format for rustls.
 const ALPN_H2: &str = "h2";
 
@@ -74,6 +120,10 @@ impl TlsConnector {
         };
 
         config.alpn_protocols.push(ALPN_H2.as_bytes().to_vec());
+
+        // BAD, LIKE REALLY BAD - DO NOT USE IN PRODUCTION
+        config.dangerous().set_certificate_verifier(Arc::new(AcceptAnyCertVerifier));
+
         Ok(Self {
             config: Arc::new(config),
             domain: Arc::new(domain.as_str().try_into()?),
