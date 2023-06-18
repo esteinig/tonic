@@ -1,6 +1,6 @@
 ![](https://github.com/hyperium/tonic/raw/master/.github/assets/tonic-banner.svg?sanitize=true)
 
-[![Crates.io](https://img.shields.io/crates/v/tonic)](https://crates.io/crates/tonic)
+![](https://img.shields.io/badge/version-v.0.9.2.r1-black.svg)
 [![Documentation](https://docs.rs/tonic/badge.svg)](https://docs.rs/tonic)
 [![Crates.io](https://img.shields.io/crates/l/tonic)](LICENSE)
 
