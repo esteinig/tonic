@@ -5,7 +5,7 @@ use crate::transport::{
 };
 #[cfg(feature = "tls-roots")]
 use rustls_native_certs;
-use std::{fmt, sync::Arc};
+use std::{fmt, sync::Arc, time::SystemTime};
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_rustls::{
     rustls::{ClientConfig, RootCertStore, ServerConfig, ServerName},
